@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { io } from "socket.io-client";
 import ChatMobileBar from '../components/chat/ChatMobileBar.jsx';
@@ -36,6 +36,7 @@ const Home = () => {
   const [ renameChat, setRenameChat ] = useState(null);
   const [ deleteChat, setDeleteChat ] = useState(null);
   const [ me, setMe ] = useState(null);
+  const [ authChecking, setAuthChecking ] = useState(true);
   const navigate = useNavigate();
 
   // const activeChat = chats.find(c => c.id === activeChatId) || null;
@@ -61,37 +62,37 @@ const Home = () => {
   toast.success('New chat created');
   };
 
-  // Ensure at least one chat exists initially
+  // Auth guard + initial wiring
   useEffect(() => {
+    let s = null;
+    (async () => {
+      try {
+        // Check auth first
+        const meResp = await axios.get('http://localhost:3000/api/auth/me', { withCredentials: true });
+        setMe(meResp.data.user);
 
-    axios.get("http://localhost:3000/api/chat", { withCredentials: true })
-      .then(response => {
-        dispatch(setChats(response.data.chats.reverse()));
-      })
+        // Load chats
+        const chatsResp = await axios.get('http://localhost:3000/api/chat', { withCredentials: true });
+        dispatch(setChats(chatsResp.data.chats.reverse()));
 
-    const tempSocket = io("http://localhost:3000", {
-      withCredentials: true,
-    })
+        // Wire socket only for authenticated users
+        s = io('http://localhost:3000', { withCredentials: true });
+        s.on('ai-response', (messagePayload) => {
+          setMessages((prev) => [ ...prev, { type: 'ai', content: messagePayload.content } ]);
+          dispatch(sendingFinished());
+        });
+        setSocket(s);
+      } catch (e) {
+        console.warn('Auth check failed', e);
+        toast.error('Please login to continue');
+        navigate('/login');
+      } finally {
+        setAuthChecking(false);
+      }
+    })();
 
-    tempSocket.on("ai-response", (messagePayload) => {
-      console.log("Received AI response:", messagePayload);
-
-      setMessages((prevMessages) => [ ...prevMessages, {
-        type: 'ai',
-        content: messagePayload.content
-      } ]);
-
-      dispatch(sendingFinished());
-    });
-
-    setSocket(tempSocket);
-
-    // fetch current user
-    axios.get('http://localhost:3000/api/auth/me', { withCredentials: true })
-      .then(res => setMe(res.data.user))
-      .catch(() => { setMe(null); });
-
-  }, [dispatch]);
+  return () => { try { s?.disconnect?.(); } catch { /* ignore disconnect errors */ } };
+  }, [dispatch, navigate]);
 
   const sendMessage = async () => {
 
@@ -138,6 +139,8 @@ const Home = () => {
 
   }
 
+
+if (authChecking) return null;
 
 return (
   <div className="chat-layout minimal">

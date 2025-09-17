@@ -31,10 +31,23 @@
 .chat-item-menu-btn { background: #111; color: #cfcfcf; border: 1px solid #242424; width: 28px; height: 28px; border-radius: 8px; display:inline-flex; align-items:center; justify-content:center; cursor: pointer; }
 .chat-item-menu-btn:hover { background:#181818; }
 
-.chat-item-menu { position: absolute; bottom: 8px; right: 8px; background:#0b0b0b; border:1px solid #202020; border-radius:10px; padding:6px; display:flex; flex-direction:column; gap:4px; z-index: 5; min-width: 120px; }
-.chat-item-menu button { background: transparent; color:#e8e8e8; border:0; text-align:left; padding:8px 10px; border-radius:8px; cursor:pointer; font-size: 0.85rem; }
+.chat-item-menu { position: absolute; bottom: 8px; right: 8px; background:#0f0f10; border:1px solid #222; border-radius:12px; padding:8px; display:flex; flex-direction:column; gap:4px; z-index: 8; min-width: 160px; box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
+.chat-item-menu.up { bottom: auto; top: 8px; }
+.chat-item-menu button { background: transparent; color:#e8e8e8; border:0; text-align:left; padding:10px 12px; border-radius:8px; cursor:pointer; font-size: 0.9rem; display:flex; align-items:center; gap:10px; }
 .chat-item-menu button:hover { background:#161616; }
 .chat-item-menu .danger { color:#ff6b6b; }
+.chat-item-menu .sep { height: 1px; background: #222; margin: 4px 2px; }
+.mi { width: 16px; display:inline-flex; align-items:center; justify-content:center; opacity:.9; }
+/* Slightly larger icon in logout for clarity */
+.profile-menu .logout-btn .mi { width: 15px; }
+.profile-menu .logout-btn .mi-svg { display:inline-block; vertical-align:middle; }
+
+/* Floating popover (portal) */
+.chat-menu-popover { position: fixed; background:#0f0f10; border:1px solid #222; border-radius:12px; padding:8px; display:flex; flex-direction:column; gap:4px; z-index: 1000; min-width: 200px; max-width: 280px; box-shadow: 0 24px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset; }
+.chat-menu-popover button { background: transparent; color:#e8e8e8; border:0; text-align:left; padding:10px 12px; border-radius:8px; cursor:pointer; font-size: 0.9rem; display:flex; align-items:center; gap:10px; }
+.chat-menu-popover button:hover { background:#161616; }
+.chat-menu-popover .danger { color:#ff6b6b; }
+.chat-menu-popover .sep { height: 1px; background: #222; margin: 4px 2px; }
 
 /* Footer profile */
 .sidebar-footer { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px; border-top: 1px solid var(--color-border); background: rgba(0,0,0,0.35); backdrop-filter: blur(10px); }
@@ -45,6 +58,7 @@
 .profile-name { font-size: 0.9rem; font-weight: 600; }
 .profile-sub { font-size: 0.75rem; color: var(--color-text-muted); }
 .caret { opacity: 0.7; }
-.profile-menu { position: absolute; right: 12px; bottom: 64px; background: #0b0b0b; border: 1px solid #202020; border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 4px; z-index: 6; min-width: 140px; }
-.profile-menu button { background: transparent; border: 0; color: #e8e8e8; text-align: left; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
-.profile-menu button:hover { background: #161616; }
+.profile-menu { position: absolute; left: 16px; right: auto; bottom: 78px; background: #171718; border: 1px solid #2b2b2d; border-radius: 14px; padding: 0px; display: flex; flex-direction: column; gap: 8px; z-index: 20; min-width: 220px; box-shadow: 0 24px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset; }
+.profile-menu::after { content: ""; position: absolute; bottom: -8px; left: 32px; border-width: 8px 8px 0 8px; border-style: solid; border-color: #171718 transparent transparent transparent; filter: drop-shadow(0 -1px 0 #2b2b2d); }
+.profile-menu .logout-btn { background: #1e1f21; border: 1px solid #333437; color: #8a8989; text-align: left; padding: 12px 14px; border-radius: 5px; cursor: pointer; display:flex; align-items:center; gap:10px; font-weight:600; font-size: 0.8rem; letter-spacing: 0.01em; }
+.profile-menu .logout-btn:hover { background: #26272a; }
