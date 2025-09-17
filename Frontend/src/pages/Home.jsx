@@ -1,22 +1,26 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { io } from "socket.io-client";
 import ChatMobileBar from '../components/chat/ChatMobileBar.jsx';
 import ChatSidebar from '../components/chat/ChatSidebar.jsx';
 import ChatMessages from '../components/chat/ChatMessages.jsx';
 import ChatComposer from '../components/chat/ChatComposer.jsx';
+import NewChatModal from '../components/chat/NewChatModal.jsx';
+import ConfirmModal from '../components/ui/ConfirmModal.jsx';
 import '../components/chat/ChatLayout.css';
-import { fakeAIReply } from '../components/chat/aiClient.js';
+// import { fakeAIReply } from '../components/chat/aiClient.js';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import {
-  ensureInitialChat,
+  // ensureInitialChat,
   startNewChat,
   selectChat,
   setInput,
   sendingStarted,
   sendingFinished,
-  addUserMessage,
-  addAIMessage,
+  // addUserMessage,
+  // addAIMessage,
   setChats
 } from '../store/chatSlice.js';
 
@@ -28,8 +32,13 @@ const Home = () => {
   const isSending = useSelector(state => state.chat.isSending);
   const [ sidebarOpen, setSidebarOpen ] = React.useState(false);
   const [ socket, setSocket ] = useState(null);
+  const [ newChatOpen, setNewChatOpen ] = useState(false);
+  const [ renameChat, setRenameChat ] = useState(null);
+  const [ deleteChat, setDeleteChat ] = useState(null);
+  const [ me, setMe ] = useState(null);
+  const navigate = useNavigate();
 
-  const activeChat = chats.find(c => c.id === activeChatId) || null;
+  // const activeChat = chats.find(c => c.id === activeChatId) || null;
 
   const [ messages, setMessages ] = useState([
     // {
@@ -42,21 +51,15 @@ const Home = () => {
     // }
   ]);
 
-  const handleNewChat = async () => {
-    // Prompt user for title of new chat, fallback to 'New Chat'
-    let title = window.prompt('Enter a title for the new chat:', '');
-    if (title) title = title.trim();
-    if (!title) return
-
-    const response = await axios.post("http://localhost:3000/api/chat", {
-      title
-    }, {
-      withCredentials: true
-    })
+  const handleNewChat = async (title) => {
+    if (!title) return;
+    const response = await axios.post("http://localhost:3000/api/chat", { title }, { withCredentials: true });
     getMessages(response.data.chat._id);
     dispatch(startNewChat(response.data.chat));
     setSidebarOpen(false);
-  }
+    setNewChatOpen(false);
+  toast.success('New chat created');
+  };
 
   // Ensure at least one chat exists initially
   useEffect(() => {
@@ -83,7 +86,12 @@ const Home = () => {
 
     setSocket(tempSocket);
 
-  }, []);
+    // fetch current user
+    axios.get('http://localhost:3000/api/auth/me', { withCredentials: true })
+      .then(res => setMe(res.data.user))
+      .catch(() => { setMe(null); });
+
+  }, [dispatch]);
 
   const sendMessage = async () => {
 
@@ -135,7 +143,7 @@ return (
   <div className="chat-layout minimal">
     <ChatMobileBar
       onToggleSidebar={() => setSidebarOpen(o => !o)}
-      onNewChat={handleNewChat}
+  onNewChat={() => setNewChatOpen(true)}
     />
     <ChatSidebar
       chats={chats}
@@ -145,7 +153,21 @@ return (
         setSidebarOpen(false);
         getMessages(id);
       }}
-      onNewChat={handleNewChat}
+  onNewChat={() => setNewChatOpen(true)}
+      onRenameChat={(chat) => setRenameChat(chat)}
+  onDeleteChat={(chat) => setDeleteChat(chat)}
+      user={me}
+    onLogout={async () => {
+        try {
+          await axios.post('http://localhost:3000/api/auth/logout', {}, { withCredentials: true });
+          setMe(null);
+      toast.success('Logged out');
+      navigate('/login');
+        } catch (e) {
+          console.error('Failed to logout', e);
+      toast.error('Logout failed');
+        }
+      }}
       open={sidebarOpen}
     />
     <main className="chat-main" role="main">
@@ -166,6 +188,51 @@ return (
           isSending={isSending}
         />}
     </main>
+    <NewChatModal
+      open={newChatOpen}
+      onCancel={() => setNewChatOpen(false)}
+      onCreate={handleNewChat}
+    />
+    <NewChatModal
+      open={!!renameChat}
+      onCancel={() => setRenameChat(null)}
+      onCreate={async (title) => {
+        try {
+          await axios.patch(`http://localhost:3000/api/chat/${renameChat._id}`, { title }, { withCredentials: true });
+          const resp = await axios.get('http://localhost:3000/api/chat', { withCredentials: true });
+          dispatch(setChats(resp.data.chats.reverse()));
+          toast.success('Chat renamed');
+        } catch (e) {
+          console.error('Failed to rename chat', e);
+          toast.error('Rename failed');
+        } finally {
+          setRenameChat(null);
+        }
+      }}
+      defaultValue={renameChat?.title || ''}
+      modalTitle="Rename Chat"
+      confirmLabel="Save"
+    />
+    <ConfirmModal
+      open={!!deleteChat}
+      title="Delete chat?"
+      message="This chat and all its messages will be permanently removed."
+      confirmLabel="Delete"
+      onCancel={() => setDeleteChat(null)}
+      onConfirm={async () => {
+        try {
+          await axios.delete(`http://localhost:3000/api/chat/${deleteChat._id}`, { withCredentials: true });
+          const resp = await axios.get('http://localhost:3000/api/chat', { withCredentials: true });
+          dispatch(setChats(resp.data.chats.reverse()));
+          toast.success('Chat deleted');
+        } catch (e) {
+          console.error('Failed to delete chat', e);
+          toast.error('Delete failed');
+        } finally {
+          setDeleteChat(null);
+        }
+      }}
+    />
     {sidebarOpen && (
       <button
         className="sidebar-backdrop"

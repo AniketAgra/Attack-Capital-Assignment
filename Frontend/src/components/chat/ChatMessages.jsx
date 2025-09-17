@@ -45,8 +45,15 @@ const ChatMessages = ({ messages, isSending }) => {
       {isSending && (
         <div className="msg msg-ai pending">
           <div className="msg-role" aria-hidden="true">AI</div>
-          <div className="msg-bubble typing-dots" aria-label="AI is typing">
-            <span/><span/><span/>
+          <div className="msg-bubble typing" aria-label="AI is typing">
+            <div className="typing-row">
+              <div className="typing-dots"><span/><span/><span/></div>
+              <span className="typing-label">Generating</span>
+            </div>
+            <div className="typing-shimmer">
+              <span className="line"/>
+              <span className="line short"/>
+            </div>
           </div>
         </div>
       )}

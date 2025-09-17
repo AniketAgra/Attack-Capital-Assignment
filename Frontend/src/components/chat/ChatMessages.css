@@ -84,10 +84,17 @@
     border-color: #1e1e1e;
 }
 
-.msg-ai.pending .msg-bubble {
-    display: inline-flex;
-    gap: 6px;
+.msg-ai.pending .msg-bubble.typing {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
 }
+
+.typing-row { display: inline-flex; align-items: center; gap: 10px; }
+.typing-label { font-size: 0.85rem; color: #bdbdbd; letter-spacing: 0.02em; animation: fadePulse 1.6s ease-in-out infinite; }
+.typing-dots { color: #d9d9d9; display: inline-flex; gap: 6px; }
 
 .msg-error .msg-bubble {
     border-color: var(--color-danger);
@@ -187,4 +194,20 @@
     40% {
         opacity: 1;
     }
+}
+
+/* Shimmer placeholder lines to suggest ongoing generation */
+.typing-shimmer { display: flex; flex-direction: column; gap: 8px; }
+.typing-shimmer .line { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #141414, #1a1a1a, #141414); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; border: 1px solid #1e1e1e; }
+.typing-shimmer .line.short { width: 50%; }
+
+@keyframes shimmer {
+    0% { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes fadePulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
 }
