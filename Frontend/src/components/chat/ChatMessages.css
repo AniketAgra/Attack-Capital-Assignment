@@ -7,6 +7,16 @@
     flex-direction: column;
     gap: var(--space-5);
     max-width: 820px;
+    /* New: add comfortable breathing room from screen edges */
+    padding: 16px 16px 24px; /* top | sides | bottom */
+    box-sizing: border-box;  /* include padding in width calculation */
+}
+
+/* Slightly wider padding on desktop for a balanced look */
+@media (min-width: 960px) {
+    .messages {
+        padding-inline: 24px;
+    }
 }
 
 .messages::-webkit-scrollbar{
