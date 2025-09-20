@@ -17,6 +17,7 @@ function initSocketServer(httpServer) {
         }
     })
 
+    //middleware to authenticate socket connection
     io.use(async (socket, next) => {
 
         const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
@@ -44,6 +45,8 @@ function initSocketServer(httpServer) {
     io.on("connection", (socket) => {
         socket.on("ai-message", async (messagePayload) => {
             /* messagePayload = { chat:chatId,content:message text } */
+
+            //user message ans its vector creation
             const [ message, vectors ] = await Promise.all([
                 messageModel.create({
                     chat: messagePayload.chat,
@@ -64,7 +67,7 @@ function initSocketServer(httpServer) {
                 }
             })
 
-
+            //creating memory and fetching chat history
             const [ memory, chatHistory ] = await Promise.all([
 
                 queryMemory({
@@ -72,7 +75,8 @@ function initSocketServer(httpServer) {
                     limit: 3,
                     metadata: {
                         user: socket.user._id
-                    }
+                    },
+                    includeMetadata: true
                 }),
 
                 messageModel.find({
@@ -112,6 +116,7 @@ function initSocketServer(httpServer) {
                 chat: messagePayload.chat
             })
 
+            //response message ans its vectors creation
             const [ responseMessage, responseVectors ] = await Promise.all([
                 messageModel.create({
                     chat: messagePayload.chat,

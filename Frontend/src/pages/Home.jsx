@@ -54,7 +54,7 @@ const Home = () => {
 
   const handleNewChat = async (title) => {
     if (!title) return;
-    const response = await axios.post("http://localhost:3000/api/chat", { title }, { withCredentials: true });
+    const response = await axios.post("https://attack-capital-assignment.onrender.com/api/chat", { title }, { withCredentials: true });
     getMessages(response.data.chat._id);
     dispatch(startNewChat(response.data.chat));
     setSidebarOpen(false);
@@ -68,15 +68,15 @@ const Home = () => {
     (async () => {
       try {
         // Check auth first
-        const meResp = await axios.get('http://localhost:3000/api/auth/me', { withCredentials: true });
+        const meResp = await axios.get('https://attack-capital-assignment.onrender.com/api/auth/me', { withCredentials: true });
         setMe(meResp.data.user);
 
         // Load chats
-        const chatsResp = await axios.get('http://localhost:3000/api/chat', { withCredentials: true });
+        const chatsResp = await axios.get('https://attack-capital-assignment.onrender.com/api/chat', { withCredentials: true });
         dispatch(setChats(chatsResp.data.chats.reverse()));
 
         // Wire socket only for authenticated users
-        s = io('http://localhost:3000', { withCredentials: true });
+        s = io('https://attack-capital-assignment.onrender.com', { withCredentials: true });
         s.on('ai-response', (messagePayload) => {
           setMessages((prev) => [ ...prev, { type: 'ai', content: messagePayload.content } ]);
           dispatch(sendingFinished());
@@ -128,7 +128,7 @@ const Home = () => {
 
   const getMessages = async (chatId) => {
 
-   const response = await  axios.get(`http://localhost:3000/api/chat/messages/${chatId}`, { withCredentials: true })
+   const response = await  axios.get(`https://attack-capital-assignment.onrender.com/api/chat/messages/${chatId}`, { withCredentials: true })
 
    console.log("Fetched messages:", response.data.messages);
 
@@ -162,7 +162,7 @@ return (
       user={me}
     onLogout={async () => {
         try {
-          await axios.post('http://localhost:3000/api/auth/logout', {}, { withCredentials: true });
+          await axios.post('https://attack-capital-assignment.onrender.com/api/auth/logout', {}, { withCredentials: true });
           setMe(null);
       toast.success('Logged out');
       navigate('/login');
@@ -201,8 +201,8 @@ return (
       onCancel={() => setRenameChat(null)}
       onCreate={async (title) => {
         try {
-          await axios.patch(`http://localhost:3000/api/chat/${renameChat._id}`, { title }, { withCredentials: true });
-          const resp = await axios.get('http://localhost:3000/api/chat', { withCredentials: true });
+          await axios.patch(`https://attack-capital-assignment.onrender.com/api/chat/${renameChat._id}`, { title }, { withCredentials: true });
+          const resp = await axios.get('https://attack-capital-assignment.onrender.com/api/chat', { withCredentials: true });
           dispatch(setChats(resp.data.chats.reverse()));
           toast.success('Chat renamed');
         } catch (e) {
@@ -224,8 +224,8 @@ return (
       onCancel={() => setDeleteChat(null)}
       onConfirm={async () => {
         try {
-          await axios.delete(`http://localhost:3000/api/chat/${deleteChat._id}`, { withCredentials: true });
-          const resp = await axios.get('http://localhost:3000/api/chat', { withCredentials: true });
+          await axios.delete(`https://attack-capital-assignment.onrender.com/api/chat/${deleteChat._id}`, { withCredentials: true });
+          const resp = await axios.get('https://attack-capital-assignment.onrender.com/api/chat', { withCredentials: true });
           dispatch(setChats(resp.data.chats.reverse()));
           toast.success('Chat deleted');
         } catch (e) {
