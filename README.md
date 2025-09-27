@@ -88,7 +88,7 @@ npm install
 2) Start servers (in two terminals)
 
 ```
-# Backend (http://localhost:3000)
+# Backend (https://attack-capital-assignment.onrender.com)
 cd Backend
 npm start
 
@@ -102,7 +102,7 @@ npm run dev
 
 ## API reference (REST)
 
-Base URL: `http://localhost:3000`
+Base URL: `https://attack-capital-assignment.onrender.com`
 
 Auth (cookie-based JWT)
 - POST `/api/auth/register`
@@ -133,7 +133,7 @@ Chats (requires auth)
 
 ## Realtime (Socket.IO)
 
-Namespace: default; connects to `http://localhost:3000` with credentials. The server authorizes via the `token` cookie.
+Namespace: default; connects to `https://attack-capital-assignment.onrender.com` with credentials. The server authorizes via the `token` cookie.
 
 Events
 - Client → Server: `ai-message`
